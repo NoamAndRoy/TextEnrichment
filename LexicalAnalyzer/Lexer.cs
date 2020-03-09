@@ -17,18 +17,18 @@ namespace LexicalAnalyzer
 
         public IEnumerable<Token<TEnum>> GetTokens(string text)
         {
-            var spanText = text.Split(' ', '\r', '\n').AsSpan();
+            var memoryText = text.AsMemory();
 
-            while (!spanText.IsEmpty)
+            while (!memoryText.IsEmpty)
             {
-                var token = FindToken(spanText[0].AsMemory());
+                var token = FindToken(memoryText);
 
                 if (token != null)
                 {
                     yield return token;
                 }
 
-                spanText = spanText.Slice(token?.Value.Length ?? 1);
+                memoryText = memoryText.Slice(token?.Value.Length ?? 1);
             }
         }
 
