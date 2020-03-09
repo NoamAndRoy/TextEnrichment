@@ -1,11 +1,8 @@
-﻿using System;
-using System.Threading;
-using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
-using LexicalAnalyzer;
-using LexicalAnalyzer.ExtensionMethods;
+﻿using LexicalAnalyzer.ExtensionMethods;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace TextEnrichment
 {
@@ -30,7 +27,8 @@ namespace TextEnrichment
         private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
             services.AddOptions()
-                .AddLexerFromConfiguration<eTokenType>(context.Configuration);
+                .AddLexer<eTokenType>()
+                .AddHostedService<EnrichmentService>();
         }
     }
 }

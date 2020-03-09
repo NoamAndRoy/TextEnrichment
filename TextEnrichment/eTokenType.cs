@@ -2,8 +2,10 @@
 {
     public enum eTokenType
     {
-        StringValue,
+        UpperCaseWord,
+        Word,
         Number,
-        Punctuation
+        Period,
+        Other
     }
 }
