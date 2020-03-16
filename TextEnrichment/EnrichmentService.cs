@@ -1,7 +1,6 @@
-﻿using LexicalAnalyzer;
+﻿using Aspose.Words;
+using LexicalAnalyzer;
 using Microsoft.Extensions.Hosting;
-using Novacode;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,23 +23,27 @@ namespace TextEnrichment
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var document = DocX.Load(@"C:\Users\Chapnik\Source\Repos\TextEnrichment\example.docx");
+            var document = new Document("textBefore.docx");
+            var fixedDocument = new Document();
+            var documentBuilder = new DocumentBuilder(fixedDocument);
 
-            var tokens = lexer.GetTokens(document.Text).ToList();
+            var paragraphs = document.GetChildNodes(NodeType.Paragraph, true);
 
-            var sentences = GetSentences(tokens);
-
-            using var fixedDocument = DocX.Create(@"C:\Users\Chapnik\Source\Repos\TextEnrichment\Fixed.docx");
-            fixedDocument.SetDirection(Direction.LeftToRight);
-
-            foreach(var sentence in sentences)
+            foreach (var paragraph in paragraphs)
             {
-                var sentenceAsText = SentenceToText(sentence);
-                Console.WriteLine(sentenceAsText);
-                fixedDocument.InsertParagraph(SentenceToText(sentence));
+                var tokens = lexer.GetTokens(paragraph.GetText()).ToList();
+                var sentences = GetSentences(tokens);
+
+                documentBuilder.InsertParagraph();
+
+                foreach (var sentenceAsText in sentences.Select(sentence => SentenceToText(sentence)))
+                {
+                    documentBuilder.Writeln(sentenceAsText);
+                    documentBuilder.InsertParagraph();
+                }
             }
 
-            fixedDocument.Save();
+            fixedDocument.Save("textAfter.docx");
 
             applicationLifetime.StopApplication();
 
@@ -84,23 +87,45 @@ namespace TextEnrichment
             return -1;
         }
 
-        private string SentenceToText(List<Token<eTokenType>> sentence)
+        private string SentenceToText(List<Token<eTokenType>> words)
         {
-            var builder = new StringBuilder(sentence[0].Value.ToString());
-            var lastToken = sentence[0];
+            if (words.Count == 0)
+            {
+                return string.Empty;
+            }
 
-            foreach(var token in sentence.Skip(1))
+            var builder = new StringBuilder(AddNumber(words[0].Value.ToString()) + words[0].Value);
+            var lastToken = words[0];
+
+            foreach (var token in words.Skip(1))
             {
                 builder.Append(token.TokenType switch
                 {
+                    eTokenType.Punctuation when token.Value.ToString() == "(" || token.Value.ToString() == "-" => $" {token.Value.ToString()}",
                     eTokenType.Punctuation => token.Value.ToString(),
-                    _ when lastToken.TokenType != eTokenType.Punctuation => $" {token.Value.ToString()}",
+                    _ when lastToken.Value.ToString() != "(" => $" {token.Value.ToString()}",
                     _ => token.Value.ToString()
                 });
 
                 lastToken = token;
             }
+
             return builder.ToString();
         }
+
+        private string AddNumber(string word) =>
+            word.ToLower() switch
+            {
+                "first" => "1. ",
+                "second" => "2. ",
+                "third" => "3. ",
+                "fourth" => "4. ",
+                "fifth" => "5. ",
+                "sixth" => "6. ",
+                "seventh" => "7. ",
+                "eighth" => "8. ",
+                "ninth" => "9. ",
+                _ => ""
+            };
     }
 }

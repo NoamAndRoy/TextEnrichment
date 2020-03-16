@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Words" Version="20.2.0" />
-    <PackageReference Include="DocXCore" Version="1.0.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
+    <PackageReference Include="Aspose.Words" Version="20.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.5.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,6 +23,9 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="textBefore.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
