@@ -2,6 +2,7 @@
 using LexicalAnalyzer;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -29,19 +30,37 @@ namespace TextEnrichment
 
             var paragraphs = document.GetChildNodes(NodeType.Paragraph, true);
 
+            var font = documentBuilder.Font;
+            font.Name = "Calibri";
+            font.Size = 12;
+
+            documentBuilder.StartTable();
+
             foreach (var paragraph in paragraphs)
             {
                 var tokens = lexer.GetTokens(paragraph.GetText()).ToList();
                 var sentences = GetSentences(tokens);
 
-                documentBuilder.InsertParagraph();
-
                 foreach (var sentenceAsText in sentences.Select(sentence => SentenceToText(sentence)))
                 {
+                    documentBuilder.InsertCell();
+                    documentBuilder.Writeln("some title");
+
+                    documentBuilder.InsertCell();
                     documentBuilder.Writeln(sentenceAsText);
-                    documentBuilder.InsertParagraph();
+
+                    documentBuilder.EndRow();
                 }
+
+                documentBuilder.InsertCell();
+                documentBuilder.InsertCell();
+                var row = documentBuilder.EndRow();
+                row.RowFormat.Height = 20;
             }
+
+            var table = documentBuilder.EndTable();
+            table.ClearBorders();
+            table.SetBorder(BorderType.Vertical, LineStyle.Single, 1, Color.Black, true);
 
             fixedDocument.Save("textAfter.docx");
 
