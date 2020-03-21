@@ -3,6 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using TextEnrichment.Configs;
+using TextEnrichment.Tags;
+using TextEnrichment.Text;
+using TextEnrichment.Word;
 
 namespace TextEnrichment
 {
@@ -27,7 +31,13 @@ namespace TextEnrichment
         private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
             services.AddOptions()
-                .AddLexer<eTokenType>()
+                .Configure<DataFilesConfig>(context.Configuration.GetSection("DataFiles"));
+
+            services.AddLexer<eTokenType>()
+                .AddTransient<ITagsLoader, TagsCSVLoader>()
+                .AddTransient<IDocumentReader, DocumentReader>()
+                .AddTransient<IDocumentWriter, DocumentWriter>()
+                .AddTransient<ISentencer, Sentencer>()
                 .AddHostedService<EnrichmentService>();
         }
     }
