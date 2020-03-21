@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using LexicalAnalyzer.ExtensionMethods;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,7 @@ namespace TextEnrichment
         private static void ConfigureConfiguration(HostBuilderContext context, IConfigurationBuilder config)
         {
             config
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false, false)
                 .Build();
         }
