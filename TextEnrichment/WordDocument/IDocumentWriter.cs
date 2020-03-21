@@ -1,4 +1,4 @@
-﻿namespace TextEnrichment.Word
+﻿namespace TextEnrichment.WordDocument
 {
     public interface IDocumentWriter
     {

@@ -19,9 +19,9 @@ namespace TextEnrichment.Text
             tagExpressions = new Lazy<Dictionary<string, string>>(tagsLoader.LoadTags);
         }
 
-        public IEnumerable<(string sentence, string? tag)> GetSentencesFromParagraph(string paragraph)
+        public IEnumerable<(string sentence, string? tag)> GetSentences(string text)
         {
-            var tokens = lexer.GetTokens(paragraph).ToList();
+            var tokens = lexer.GetTokens(text).ToList();
             var sentences = GetSentences(tokens);
 
             foreach (var sentence in sentences)
@@ -55,7 +55,9 @@ namespace TextEnrichment.Text
 
         private int FindSentenceEnd(List<Token<eTokenType>> tokens)
         {
-            var index = tokens.FindIndex(token => token.TokenType == eTokenType.Punctuation && token.Value.ToString() == ".");
+            var sentenceEndOptions = new[] {".", "?", "!"};
+            var index = tokens.FindIndex(token => token.TokenType == eTokenType.Punctuation && sentenceEndOptions.Contains(token.Value.ToString()));
+
             if (tokens.Count > index + 1
                 && tokens[index + 1].TokenType != eTokenType.Punctuation
                 && char.IsUpper(tokens[index + 1].Value.ToString()[0]))
@@ -80,9 +82,9 @@ namespace TextEnrichment.Text
             {
                 builder.Append(token.TokenType switch
                 {
-                    eTokenType.Punctuation when token.Value.ToString() == "(" || token.Value.ToString() == "-" => $" {token.Value.ToString()}",
+                    eTokenType.Punctuation when token.Value.ToString() == "(" || token.Value.ToString() == "-" => $" {token.Value}",
                     eTokenType.Punctuation => token.Value.ToString(),
-                    _ when lastToken.Value.ToString() != "(" => $" {token.Value.ToString()}",
+                    _ when lastToken.Value.ToString() != "(" => $" {token.Value}",
                     _ => token.Value.ToString()
                 });
 

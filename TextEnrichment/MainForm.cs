@@ -1,21 +1,17 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
-using TextEnrichment.Text;
-using TextEnrichment.Word;
+using TextEnrichment.Enrichment;
 
 namespace TextEnrichment
 {
     public partial class MainForm : Form
     {
-        private readonly ISentencer sentencer;
-        private readonly IDocumentReader documentReader;
-        private readonly IDocumentWriter documentWriter;
+        private readonly IEnricher enricher;
 
-        public MainForm(ISentencer sentencer, IDocumentReader documentReader, IDocumentWriter documentWriter)
+        public MainForm(IEnricher enricher)
         {
-            this.sentencer = sentencer;
-            this.documentReader = documentReader;
-            this.documentWriter = documentWriter;
+            this.enricher = enricher;
 
             InitializeComponent();
         }
@@ -29,21 +25,18 @@ namespace TextEnrichment
                 return;
             }
 
-            foreach (var paragraph in documentReader.ReadParagraphs(filePathBeforeTextBox.Text))
+            enricher.Enrich(filePathBeforeTextBox.Text, filePathAfterTextBox.Text);
+
+            if (MessageBox.Show("File Enriched Successfully, Would you like to open it now?", "File Enriched",
+                MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                var sentences = sentencer.GetSentencesFromParagraph(paragraph);
-
-                foreach (var (sentence, tag) in sentences)
+                var pi = new ProcessStartInfo(filePathAfterTextBox.Text)
                 {
-                    documentWriter.InsertSentence(sentence, tag ?? string.Empty);
-                }
+                    UseShellExecute = true
+                };
 
-                documentWriter.InsertEmptyLine();
+                Process.Start(pi);
             }
-
-            documentWriter.Save(filePathAfterTextBox.Text);
-
-            MessageBox.Show("File Enriched");
         }
 
         private void selectFileBtn_Click(object sender, System.EventArgs e)
@@ -62,7 +55,7 @@ namespace TextEnrichment
             }
         }
 
-        private string GetEnrichedFileName(string filePath) => 
+        private string GetEnrichedFileName(string filePath) =>
             $"{Path.GetDirectoryName(filePath)}\\{Path.GetFileNameWithoutExtension(filePath)} - Enriched.docx";
     }
 }

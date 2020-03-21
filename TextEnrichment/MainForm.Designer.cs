@@ -100,6 +100,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(517, 105);
+            this.MinimumSize = new System.Drawing.Size(517, 105);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.filePathAfterTextBox);
             this.Controls.Add(this.selectFileBtn);

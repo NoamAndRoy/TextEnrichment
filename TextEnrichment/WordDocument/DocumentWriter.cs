@@ -2,7 +2,7 @@
 using Aspose.Words.Tables;
 using System.Drawing;
 
-namespace TextEnrichment.Word
+namespace TextEnrichment.WordDocument
 {
     public class DocumentWriter : IDocumentWriter
     {

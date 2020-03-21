@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TextEnrichment.Word
+namespace TextEnrichment.WordDocument
 {
     public interface IDocumentReader
     {

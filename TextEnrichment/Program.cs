@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using LexicalAnalyzer.ExtensionMethods;
+﻿using LexicalAnalyzer.ExtensionMethods;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
+using System;
+using System.IO;
+using System.Windows.Forms;
 using TextEnrichment.Configs;
+using TextEnrichment.Enrichment;
 using TextEnrichment.Tags;
 using TextEnrichment.Text;
-using TextEnrichment.Word;
-using System.Windows.Forms;
+using TextEnrichment.WordDocument;
 
 namespace TextEnrichment
 {
@@ -32,10 +32,8 @@ namespace TextEnrichment
 
         private static void RunMainForm(IHost host)
         {
-            var sentencer = host.Services.GetService<ISentencer>();
-            var documentReader = host.Services.GetService<IDocumentReader>();
-            var documentWriter = host.Services.GetService<IDocumentWriter>();
-            using var mainWindow = new MainForm(sentencer, documentReader, documentWriter);
+            var enricher = host.Services.GetService<IEnricher>();
+            using var mainWindow = new MainForm(enricher);
 
             Application.Run(mainWindow);
         }
@@ -57,7 +55,8 @@ namespace TextEnrichment
                 .AddTransient<ITagsLoader, TagsCSVLoader>()
                 .AddTransient<IDocumentReader, DocumentReader>()
                 .AddTransient<IDocumentWriter, DocumentWriter>()
-                .AddTransient<ISentencer, Sentencer>();
+                .AddTransient<ISentencer, Sentencer>()
+                .AddTransient<IEnricher, Enricher>();
         }
     }
 }
