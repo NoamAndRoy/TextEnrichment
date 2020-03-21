@@ -1,4 +1,5 @@
-﻿using LexicalAnalyzer.ExtensionMethods;
+﻿using System;
+using LexicalAnalyzer.ExtensionMethods;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,18 +8,35 @@ using TextEnrichment.Configs;
 using TextEnrichment.Tags;
 using TextEnrichment.Text;
 using TextEnrichment.Word;
+using System.Windows.Forms;
 
 namespace TextEnrichment
 {
     public static class Program
     {
-        public static async Task Main()
+        [STAThread]
+        public static void Main()
         {
-            var builder = new HostBuilder()
-                .ConfigureAppConfiguration(ConfigureConfiguration)
-                .ConfigureServices(ConfigureServices);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-            await builder.RunConsoleAsync().ConfigureAwait(false);
+            var host = new HostBuilder()
+                .ConfigureAppConfiguration(ConfigureConfiguration)
+                .ConfigureServices(ConfigureServices)
+                .Build();
+
+            RunMainForm(host);
+        }
+
+        private static void RunMainForm(IHost host)
+        {
+            var sentencer = host.Services.GetService<ISentencer>();
+            var documentReader = host.Services.GetService<IDocumentReader>();
+            var documentWriter = host.Services.GetService<IDocumentWriter>();
+            using var mainWindow = new MainForm(sentencer, documentReader, documentWriter);
+
+            Application.Run(mainWindow);
         }
 
         private static void ConfigureConfiguration(HostBuilderContext context, IConfigurationBuilder config)
@@ -37,8 +55,7 @@ namespace TextEnrichment
                 .AddTransient<ITagsLoader, TagsCSVLoader>()
                 .AddTransient<IDocumentReader, DocumentReader>()
                 .AddTransient<IDocumentWriter, DocumentWriter>()
-                .AddTransient<ISentencer, Sentencer>()
-                .AddHostedService<EnrichmentService>();
+                .AddTransient<ISentencer, Sentencer>();
         }
     }
 }
